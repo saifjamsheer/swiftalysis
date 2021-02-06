@@ -43,7 +43,7 @@ def clean_album_titles(album):
 
 def main():
     
-    df = pd.read_csv('songs-with-urls.csv', index_col=0)
+    df = pd.read_csv('datasets/songs-with-urls.csv', index_col=0)
     headers={ 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36' }
     
     l = {}
@@ -71,7 +71,7 @@ def main():
         lyric_set.append(l_copy)
         
     df = pd.DataFrame(lyric_set)
-    df.to_csv('taylor-swift-song-lyrics.csv')
+    df.to_csv('datasets/lyrics.csv')
 
 if __name__ == "__main__":
     main()

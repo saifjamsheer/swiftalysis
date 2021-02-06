@@ -88,7 +88,7 @@ def main():
     song_list = [info for info in song_data.values()]
     
     df = pd.DataFrame(song_list)
-    df.to_csv('taylor-swift-songs.csv')
+    df.to_csv('datasets/taylor-swift-songs.csv')
     
 
 if __name__ == "__main__":

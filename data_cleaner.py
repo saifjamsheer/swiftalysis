@@ -11,8 +11,8 @@ import re
 
 def main():
     
-    df1 = pd.read_csv('taylor-swift-songs.csv', index_col=0)
-    df2 = pd.read_csv('taylor-swift-tracks.csv', index_col=0)
+    df1 = pd.read_csv('datasets/taylor-swift-songs.csv', index_col=0)
+    df2 = pd.read_csv('datasets/taylor-swift-tracks.csv', index_col=0)
     
     df1 = df1.dropna()
     
@@ -44,7 +44,7 @@ def main():
     merged = merged.drop(['album_y'], axis=1)
     merged = merged.rename(columns={'album_x':'album'})
     
-    merged.to_csv('songs-with-urls.csv')
+    merged.to_csv('datasets/songs-with-urls.csv')
     
 if __name__ == "__main__":
     main()

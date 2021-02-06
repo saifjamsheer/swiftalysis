@@ -70,7 +70,7 @@ def lemmatize(lyrics, lemmatizer):
 
 def main():
     
-    df = pd.read_csv('taylor-swift-song-lyrics.csv', index_col=0)
+    df = pd.read_csv('datasets/taylor-swift-song-lyrics.csv', index_col=0)
     df2 = df.copy()
     df3 = df.copy()
     
@@ -84,15 +84,15 @@ def main():
     df['lyrics'] = df['lyrics'].apply(lambda x: normalize(x, stopwords))
     df['lyrics'] = df['lyrics'].apply(lambda x: lemmatize(x, lemmatizer))
 
-    df.to_csv('cleaned-lyrics.csv')
+    df.to_csv('datasets/cleaned-lyrics.csv')
     
     df2['lyrics'] = df2['lyrics'].apply(lambda x: organize(x))
     
-    df2.to_csv('original-lyrics.csv')
+    df2.to_csv('datasets/original-lyrics.csv')
     
     df3['lyrics'] = df3['lyrics'].apply(lambda x: sentence(x))
     
-    df3.to_csv('sentence-lyrics.csv')
+    df3.to_csv('datasets/sentence-lyrics.csv')
     
 if __name__ == "__main__":
     main()

@@ -320,9 +320,9 @@ class SentimentClassifier():
     
     def run(self, dataset, d):
         
-#        df_test = self.polarity(d['folklore'])
-#        pos = df_test.query('polarity == "pos"').polarity.count()
-#        neg = df_test.query('polarity == "neg"').polarity.count()
+       df_test = self.polarity(d['folklore'])
+       pos = df_test.query('polarity == "pos"').polarity.count()
+       neg = df_test.query('polarity == "neg"').polarity.count()
     
         return 1
         
