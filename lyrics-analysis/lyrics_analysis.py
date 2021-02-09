@@ -323,8 +323,8 @@ class SentimentClassifier():
        df_test = self.polarity(d['folklore'])
        pos = df_test.query('polarity == "pos"').polarity.count()
        neg = df_test.query('polarity == "neg"').polarity.count()
-    
-        return 1
+
+       return pos, neg
         
 def convert(stringified): 
     
