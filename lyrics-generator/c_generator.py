@@ -5,11 +5,14 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout, LSTM
 from keras.optimizers import Adam
 
+#### Character-Level Text Generator ###
+
 SEQUENCE_LENGTH = 21
 SEQUENCE_STEP = 3
 LYRICS_PATH = 'datasets/inputs.txt'
-BATCH_SIZE = 64
-EPOCHS = 100
+BATCH_SIZE = 128
+EPOCHS = 5000
+DIVERSITY = 1.0
 
 # Extract unique characters from lyrics
 with io.open(LYRICS_PATH, 'r', encoding='utf8') as f: text = f.read()
@@ -22,15 +25,15 @@ for i in range(0, len(text) - SEQUENCE_LENGTH, SEQUENCE_STEP):
     sequences.append(text[i: i + SEQUENCE_LENGTH])
     next_chars.append(text[i + SEQUENCE_LENGTH])
 
-vocab, indices = dict((c, i) for i, c in enumerate(chars)), dict((i, c) for i, c in enumerate(chars))
+char_ix, ix_char = dict((c, i) for i, c in enumerate(chars)), dict((i, c) for i, c in enumerate(chars))
 
 # Vectorize the characters and strings
 X = np.zeros((len(sequences), SEQUENCE_LENGTH, len(chars)), dtype=np.bool)
 y = np.zeros((len(sequences), len(chars)), dtype=np.bool)
 for i, sentence in enumerate(sequences):
     for t, char in enumerate(sentence):
-        X[i, t, vocab[char]] = 1
-    y[i, vocab[next_chars[i]]] = 1
+        X[i, t, char_ix[char]] = 1
+    y[i, char_ix[next_chars[i]]] = 1
 
 model = Sequential()
 model.add(LSTM(64, input_shape=(SEQUENCE_LENGTH, len(chars))))
@@ -49,12 +52,11 @@ sentence = "Today was a fairytale"
 generated += sentence
 
 print('Generating with seed: "' + sentence + '"')
-# sys.stdout.write(generated)
 
-for i in range(1500):
+for i in range(500):
     x = np.zeros((1, SEQUENCE_LENGTH, len(chars)))
     for t, char in enumerate(sentence):
-        x[0, t, vocab[char]] = 1.
+        x[0, t, char_ix[char]] = 1.
 
     predictions = model.predict(x, verbose=0)[0]
 
@@ -65,11 +67,9 @@ for i in range(1500):
     probs = np.random.multinomial(1, preds, 1)
     next_index = np.argmax(probs)
 
-    next_char = indices[next_index]
+    next_char = ix_char[next_index]
 
     generated += next_char
     sentence = sentence[1:] + next_char
 
-    # sys.stdout.write(next_char)
-    # sys.stdout.flush()
 print(generated)
