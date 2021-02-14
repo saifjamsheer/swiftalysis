@@ -10,4 +10,4 @@ The code for the first project can be found [**here**](lyrics-analysis).
 The code for the second project can be found [**here**](lyrics-generator).
 
 ##### UPDATE
-> Modifications will be made to the project to allow for users to select an artist 
+> Modifications will be made to the project to allow for users to select a desired artist.
