@@ -105,7 +105,7 @@ def on_epoch_end(epoch, logs):
 SEQUENCE_LENGTH = 21
 SEQUENCE_STEP = 3
 LYRICS_PATH = 'datasets/inputs.txt'
-OUTPUT_PATH = 'datasets/output.txt'
+OUTPUT_PATH = 'datasets/outputs.txt'
 BATCH_SIZE = 128
 EPOCHS = 2
 DIVERSITY = 1.0
