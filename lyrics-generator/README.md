@@ -11,7 +11,7 @@ Generating lyrics using three methods:
 
 Lyrics generated after 10 epochs with input 'The more I think about it now the less I know':
 ```
-500 Characters:
+500 characters:
 
 [Chorus]
 I have that I'm forever
