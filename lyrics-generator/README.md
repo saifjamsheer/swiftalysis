@@ -7,7 +7,7 @@ Generating lyrics using three methods:
 
 > Full implementation steps will be listed once completed.
 
-##### Character-Level Generator
+#### Character-Level Generator
 
 Lyrics generated after 10 epochs with input 'The more I think about it now the less I know':
 ```
