@@ -5,6 +5,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout, LSTM
 from keras.optimizers import Adam
 from keras.callbacks import LambdaCallback
+from sklearn.model_selection import train_test_split
 
 """""""""""""""""""""""""""""""""
 CHARACTER-LEVEL LYRICS GENERATOR
@@ -35,11 +36,11 @@ def get_index_mappings(chars):
     """
     return {c: i for i, c in enumerate(chars)}, {i: c for i, c in enumerate(chars)}
 
-def vectorize_lyrics(chars, char_ix, sequences, next_chars, length):
+def vectorize_lyrics(chars, char_ix, sequences, next_chars, max_length):
     """
     Convert characters and sequences into numerical representations
     """
-    X = np.zeros((len(sequences), SEQUENCE_LENGTH, len(chars)), dtype=np.bool)
+    X = np.zeros((len(sequences), max_length, len(chars)), dtype=np.bool)
     y = np.zeros((len(sequences), len(chars)), dtype=np.bool)
     for i, sentence in enumerate(sequences):
         for t, char in enumerate(sentence):
@@ -47,13 +48,12 @@ def vectorize_lyrics(chars, char_ix, sequences, next_chars, length):
         y[i, char_ix[next_chars[i]]] = 1
     return X, y
 
-def build(length, chars, n_layers=1, dropout=0.2):
+def build(max_length, chars, dropout=0.2):
     """
     Build the network structure and compile the model
     """
     model = Sequential()
-    for _ in range(n_layers):
-        model.add(LSTM(64, input_shape=(SEQUENCE_LENGTH, len(chars))))
+    model.add(LSTM(128, input_shape=(max_length, len(chars))))
     model.add(Dropout(dropout))
     model.add(Dense(len(chars)))
     model.add(Activation('softmax'))
@@ -63,7 +63,7 @@ def build(length, chars, n_layers=1, dropout=0.2):
 
 def sample(preds, temperature=1.0):
     """
-    Samples a character index based through probabilistic means
+    Samples a character index through probabilistic means
     """
     preds = np.asarray(preds).astype('float64')
     preds = np.log(preds) / temperature
@@ -96,19 +96,19 @@ def on_epoch_end(epoch, logs):
         generated += next_char
         sentence = sentence[1:] + next_char
 
-    output_file.write('Generated lyrics:\n')
+    output_file.write('----Generated lyrics:\n')
     output_file.write(generated)
     output_file.write('\n')
     output_file.write('-'*50 + '\n')
 
 # Defining global variables
-SEQUENCE_LENGTH = 21
+SEQUENCE_LENGTH = 45
 SEQUENCE_STEP = 3
 LYRICS_PATH = 'datasets/inputs.txt'
 OUTPUT_PATH = 'datasets/outputs.txt'
 BATCH_SIZE = 128
-EPOCHS = 1
-DIVERSITY = 1.0
+EPOCHS = 500
+DIVERSITY = 0.5
 
 # Load lyrics and extract unique characters
 text = load_lyrics(LYRICS_PATH)
@@ -120,22 +120,23 @@ char_ix, ix_char = get_index_mappings(chars)
 
 # Convert text into numerical representations
 X, y = vectorize_lyrics(chars, char_ix, sequences, next_chars, SEQUENCE_LENGTH)
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
 
 # Build the LSTM model
-model = build(SEQUENCE_LENGTH, chars, n_layers=1, dropout=0.0)
+model = build(SEQUENCE_LENGTH, chars, dropout=0.2)
 
 # Open file to output generated text
-output_file = open(OUTPUT_PATH, 'w')
+output_file = open(OUTPUT_PATH, 'w', encoding='utf8')
 
 # Define callbacks for model training
 write_callback = LambdaCallback(on_epoch_end=on_epoch_end)
 callbacks_list = [write_callback]
 
 # Define seed for text generation
-seed = "Today was a fairytale"
+seed = "The more I think about it now the less I know"
 
 # Model training and text generation
-model.fit(X, y, batch_size=BATCH_SIZE, epochs=EPOCHS, callbacks=callbacks_list)
+model.fit(X, y, batch_size=BATCH_SIZE, epochs=EPOCHS, callbacks=callbacks_list, validation_data=(X_val, y_val), validation_batch_size=BATCH_SIZE)
 
 # Close output file
 output_file.close()
