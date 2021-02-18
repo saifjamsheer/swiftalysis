@@ -105,9 +105,9 @@ def on_epoch_end(epoch, logs):
 SEQUENCE_LENGTH = 45
 SEQUENCE_STEP = 3
 LYRICS_PATH = 'datasets/inputs.txt'
-OUTPUT_PATH = 'datasets/outputs.txt'
+OUTPUT_PATH = 'results/c_outputs.txt'
 BATCH_SIZE = 128
-EPOCHS = 500
+EPOCHS = 10
 DIVERSITY = 0.5
 
 # Load lyrics and extract unique characters
@@ -136,7 +136,7 @@ callbacks_list = [write_callback]
 seed = "The more I think about it now the less I know"
 
 # Model training and text generation
-model.fit(X, y, batch_size=BATCH_SIZE, epochs=EPOCHS, callbacks=callbacks_list, validation_data=(X_val, y_val), validation_batch_size=BATCH_SIZE)
+model.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, callbacks=callbacks_list, validation_data=(X_val, y_val), validation_batch_size=BATCH_SIZE)
 
 # Close output file
 output_file.close()

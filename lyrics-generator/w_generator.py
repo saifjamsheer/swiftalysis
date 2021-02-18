@@ -4,19 +4,19 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout, LSTM
 from keras.optimizers import Adam
 from keras.callbacks import LambdaCallback
+from sklearn.model_selection import train_test_split
 
 """""""""""""""""""""""""""
 WORD-LEVEL LYRICS GENERATOR
 """""""""""""""""""""""""""
 
 LYRICS_PATH = 'datasets/inputs.txt'
-OUTPUT_PATH = 'datasets/outputs.txt'
+OUTPUT_PATH = 'results/w_outputs.txt'
 BATCH_SIZE = 128
-EPOCHS = 1
+EPOCHS = 50
 DIVERSITY = 1.0
 MIN_FREQ = 10
 SEQUENCE_LENGTH = 5
-SEQUENCE_STEP = 1
 
 def load_lyrics(path):
     """
@@ -97,11 +97,13 @@ def build_GRU():
     """
     return 1
 
-def generate_seed():
+def generate_seed(sequences):
     """
     Explain
     """
-    return 1
+    seed_index = int(np.random.randint(len(sequences)))
+    seed = sequences[seed_index]
+    return seed
 
 def sample(preds, temperature=1.0):
     """
@@ -118,7 +120,32 @@ def on_epoch_end(epoch, logs):
     """
     Callback after each epoch to write the generated lyrics to the output file
     """
-    return 1 
+    output_file.write('Generating lyrics after epoch: {}\n'.format(epoch))
+
+    sentence = generate_seed(sequences)
+    output_file.write('Generating with seed: {}\n\n'.format(' '.join(sentence)))
+    output_file.write('----Generated lyrics:\n')
+    output_file.write(' '.join(sentence))
+
+    for _ in range(50):
+        x = np.zeros((1, SEQUENCE_LENGTH, len(vocab)))
+        for t, word in enumerate(sentence):
+            x[0, t, word_ix[word]] = 1.
+
+        preds = model.predict(x, verbose=0)[0]
+        next_index = sample(preds, DIVERSITY)
+
+        next_word = ix_word[next_index]
+        prev_word = sentence[-1]
+        sentence = sentence[1:] + [next_word]
+
+        if prev_word == '\n':
+            output_file.write(next_word)
+        else:
+            output_file.write(' ' + next_word)
+
+    output_file.write('\n')
+    output_file.write('-'*50 + '\n')
 
 text = load_lyrics(LYRICS_PATH)
 text = clean_text(text)
@@ -133,6 +160,7 @@ sequences, next_words = create_sequences(corpus, SEQUENCE_LENGTH)
 word_ix, ix_word = get_index_mappings(vocab)
 
 X, y = vectorize_words(sequences, next_words, SEQUENCE_LENGTH, vocab)
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
 
 model = build_LSTM(SEQUENCE_LENGTH, vocab)
 
@@ -141,29 +169,7 @@ output_file = open(OUTPUT_PATH, 'w', encoding='utf8')
 write_callback = LambdaCallback(on_epoch_end=on_epoch_end)
 callbacks_list = [write_callback]
 
-# model.fit(X, y, batch_size=BATCH_SIZE, epochs=EPOCHS)
+model.fit(X, y, batch_size=BATCH_SIZE, epochs=EPOCHS, callbacks=callbacks_list, validation_data=(X_val, y_val), validation_batch_size=BATCH_SIZE)
+model.save("models/word_level_model.h5")
 
-seed_index = int(np.random.randint(len(sequences)))
-seed = sequences[seed_index]
-sentence = seed
-print(sentence)
-
-
-for i in range(50):
-    x = np.zeros((1, SEQUENCE_LENGTH, len(vocab)))
-    for t, word in enumerate(sentence):
-        x[0, t, word_ix[word]] = 1.
-
-    predictions = model.predict(x, verbose=0)[0]
-
-    preds = np.asarray(predictions).astype('float64')
-    preds = np.log(preds) / DIVERSITY
-    exp_preds = np.exp(preds)
-    preds = exp_preds / np.sum(exp_preds)
-    probs = np.random.multinomial(1, preds, 1)
-    next_index = np.argmax(probs)
-
-    next_word = ix_word[next_index]
-
-    sentence = sentence[1:] + [next_word]
-    print(sentence)
+output_file.close()
