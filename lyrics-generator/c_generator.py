@@ -107,7 +107,7 @@ SEQUENCE_STEP = 3
 LYRICS_PATH = 'datasets/inputs.txt'
 OUTPUT_PATH = 'results/c_outputs.txt'
 BATCH_SIZE = 128
-EPOCHS = 10
+EPOCHS = 50
 DIVERSITY = 0.5
 
 # Load lyrics and extract unique characters
