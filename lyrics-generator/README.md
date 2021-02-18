@@ -32,3 +32,22 @@ Come back to be to make me
 I got a gaine
 But I don't want you love a bad to fall
 ```
+
+#### Word-Level Generator
+
+Lyrics generated after 10 epochs with input 'Was she worth this ':
+```
+50 words:
+
+Was she worth this 
+No no no no 
+And no one's 
+I know you taking my time 
+And it's choice 
+
+[Chorus] 
+Come back come back come back to me like 
+You wish it would 
+Don't you think I was too young 
+You shoulda known
+```
