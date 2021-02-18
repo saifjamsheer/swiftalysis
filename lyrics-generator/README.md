@@ -68,3 +68,13 @@ He was the way you take the way
 Of the world that comes a big Both] 
 And all I had something
 ```
+
+#### Remarks
+
+This is a relatively simple model for lyric generation, and many changes can be made to improve performance.
+
+Several takeaways from this project:
+1. After around 15 epochs, the word-level generator began to simply reproduce lyrics from the corpus, indicating that it is very easy to overfit the model.
+2. The character-level generator produced more novel sentences than the word-level generator.
+3. An embedding layer may make the models more robust.
+4. Splitting the dataset into chorus, verse, bridge, etc. and generating each section separately may produce more cohesive lyrics. 
