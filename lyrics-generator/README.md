@@ -35,7 +35,8 @@ But I don't want you love a bad to fall
 
 #### Word-Level Generator
 
-Lyrics generated after 10 epochs with input 'Was she worth this ':
+##### LSTM Model
+Lyrics generated after 10 epochs with input 'Was she worth this':
 ```
 50 words:
 
@@ -50,4 +51,20 @@ Come back come back come back to me like
 You wish it would 
 Don't you think I was too young 
 You shoulda known
+```
+
+##### GRU Model
+Lyrics generated after 10 epochs with input 'Can't breathe whenever you're gone':
+```
+50 words:
+
+Can't breathe whenever you're gone 
+Can't go back no I forgot that you 
+
+[Verse 1] 
+Uh-uh things I turned out ooh-ooh-ooh-ooh 
+I can see the way 
+He was the way you take the way 
+Of the world that comes a big Both] 
+And all I had something
 ```

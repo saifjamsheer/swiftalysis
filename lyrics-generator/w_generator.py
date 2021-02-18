@@ -1,7 +1,7 @@
 import io
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Dropout, LSTM
+from keras.layers import Dense, Activation, Dropout, LSTM, GRU
 from keras.optimizers import Adam
 from keras.callbacks import LambdaCallback
 from sklearn.model_selection import train_test_split
@@ -13,7 +13,7 @@ WORD-LEVEL LYRICS GENERATOR
 LYRICS_PATH = 'datasets/inputs.txt'
 OUTPUT_PATH = 'results/w_outputs.txt'
 BATCH_SIZE = 128
-EPOCHS = 50
+EPOCHS = 15
 DIVERSITY = 1.0
 MIN_FREQ = 10
 SEQUENCE_LENGTH = 5
@@ -27,7 +27,7 @@ def load_lyrics(path):
 
 def clean_text(text):
     """
-    Explain
+    Replaces punctuation and special characters
     """
     text = text.replace('\n', ' \n ')
     for ch in ['?', '!', '(', ')', '.', ',', '"']:
@@ -37,7 +37,7 @@ def clean_text(text):
 
 def create_vocab(text):
     """
-    Explain
+    Creates the a dictionary of all words in a string
     """
     word_freq = {}
     for word in corpus:
@@ -51,7 +51,7 @@ def create_vocab(text):
 
 def create_sequences(text, max_length):
     """
-    Explain
+    Create inputs and labels for training
     """
     sequences = []
     next_words = []
@@ -68,7 +68,7 @@ def get_index_mappings(words):
 
 def vectorize_words(sequences, next_words, max_length, vocab):
     """
-    Explain
+    Convert words and sentences into numerical representations
     """
     X = np.zeros((len(sequences), max_length, len(vocab)), dtype=np.bool)
     y = np.zeros((len(sequences), len(vocab)), dtype=np.bool)
@@ -80,7 +80,7 @@ def vectorize_words(sequences, next_words, max_length, vocab):
 
 def build_LSTM(max_length, vocab, dropout=0.2):
     """
-    Explain
+    Build the LSTM network structure and compile the model
     """
     model = Sequential()
     model.add(LSTM(128, input_shape=(max_length, len(vocab))))
@@ -91,15 +91,22 @@ def build_LSTM(max_length, vocab, dropout=0.2):
     model.compile(optimizer=optimizer, loss='categorical_crossentropy')
     return model
 
-def build_GRU():
+def build_GRU(max_length, vocab, dropout=0.2):
     """
-    Explain
+    Build the GRU network structure and compile the model
     """
-    return 1
+    model = Sequential()
+    model.add(GRU(128, input_shape=(max_length, len(vocab))))
+    model.add(Dropout(dropout))
+    model.add(Dense(len(vocab)))
+    model.add(Activation('softmax'))
+    optimizer=Adam(lr=0.01)
+    model.compile(optimizer=optimizer, loss='categorical_crossentropy')
+    return model
 
 def generate_seed(sequences):
     """
-    Explain
+    Generate initial input for sampling
     """
     seed_index = int(np.random.randint(len(sequences)))
     seed = sequences[seed_index]
@@ -162,7 +169,8 @@ word_ix, ix_word = get_index_mappings(vocab)
 X, y = vectorize_words(sequences, next_words, SEQUENCE_LENGTH, vocab)
 X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
 
-model = build_LSTM(SEQUENCE_LENGTH, vocab)
+# model = build_LSTM(SEQUENCE_LENGTH, vocab)
+model = build_GRU(SEQUENCE_LENGTH, vocab)
 
 output_file = open(OUTPUT_PATH, 'w', encoding='utf8')
 
@@ -170,6 +178,6 @@ write_callback = LambdaCallback(on_epoch_end=on_epoch_end)
 callbacks_list = [write_callback]
 
 model.fit(X, y, batch_size=BATCH_SIZE, epochs=EPOCHS, callbacks=callbacks_list, validation_data=(X_val, y_val), validation_batch_size=BATCH_SIZE)
-model.save("models/word_level_model.h5")
+# model.save("models/word_level_model.h5")
 
 output_file.close()
