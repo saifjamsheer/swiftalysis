@@ -71,7 +71,7 @@ And all I had something
 
 #### Remarks
 
-This is a relatively simple model for lyric generation, and many changes can be made to improve performance.
+This is a relatively simple model for lyric generation and many changes can be made to improve performance.
 
 Several takeaways from this project:
 1. After around 15 epochs, the word-level generator began to simply reproduce lyrics from the corpus, indicating that it is very easy to overfit the model.

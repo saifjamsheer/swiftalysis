@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Sep  8 13:02:24 2020
-
-@author: Saif
-"""
-
 import pandas as pd
 import ast
 import scipy
@@ -47,14 +39,12 @@ class TopicModeler():
         
         feat_names = dataset.columns.values.tolist()
         datatopic = self.show_topics(model, n_topics, n_words, feat_names)
-        
         return datatopic, W
         
     def tfidf(self, dataset):
         
         df = dataset.copy()
         wanalyzer = WordAnalyzer()
-        
         words = wanalyzer.unique_words(df)
         
         df['wdict'] = df['lyrics'].apply(lambda x: self.computeF(words, x))
@@ -63,11 +53,8 @@ class TopicModeler():
         idf = self.computeIDF(df)
         
         df['tfidf'] = df['tf'].apply(lambda x: self.computeTFIDF(x, idf))
-        
         df = df.drop(columns=['lyrics', 'wdict', 'tf'])
-        
         df = pd.DataFrame(df['tfidf'].values.tolist(), index=df.index)
-        
         return df
     
     def computeF(self, unique, lyrics):
@@ -129,28 +116,24 @@ class TopicModeler():
         dfW = dfW.transform(lambda x: x > threshold)
         
         dfTopics = pd.merge(dataset['album'], dfW, left_index=True, right_index=True)
+        return dfTopics
 
 class WordAnalyzer():
     
     def total_words(self, dataset):
-        
         """
         Returns a new dataset with a column indicating the total 
         number of words in a song
         """
-        
         df = dataset.copy()
         df['length'] = df['lyrics'].apply(lambda x: len(x)) 
         df = df.drop(columns=['album', 'lyrics'])
-        
         return df
     
     def avg_words(self, dataset):
-        
         """
         Returns the average number of words in an album
         """
-        
         return int(dataset['length'].mean())
     
     def unique_words(self, dataset):
@@ -162,20 +145,17 @@ class WordAnalyzer():
         df = dataset.copy()
         words = []
         
-        for index, row in df.iterrows():
+        for _, row in df.iterrows():
             words.extend(row['lyrics'])
         
         unique_words = list(set(words))
-        
         return unique_words
     
     def get_frequencies(self, lyrics):
-        
         """
         Returns a dictionary containing the number of occurrences 
         of all words in an album
         """
-        
         w = {}
     
         for lyric in lyrics:
@@ -186,16 +166,13 @@ class WordAnalyzer():
                     w[word] += 1
         
         frequencies = OrderedDict(sorted(w.items(), key=itemgetter(1), reverse=True))
-        
         return frequencies
     
     def word_cloud(self, frequencies):
-        
         """
         Generates a word cloud based on the frequencies of
         the words in an album
-        """
-                
+        """     
         wc = WordCloud(background_color='white')
         wc.generate_from_frequencies(frequencies)
         
@@ -211,7 +188,6 @@ class WordAnalyzer():
         """
         
         top_n = dict(list(frequencies.items())[:n])
-        
         return top_n
     
     def top_n_bigrams(self, dataset, n):
@@ -274,22 +250,18 @@ class WordAnalyzer():
     
     def run(self, dfo, dfc, o, c):
         
-        #words_set = analyzer.total_words(o['folklore'])
-        #avg_length = analyzer.avg_words(words_set)
-        #num_unique = analyzer.unique_words(o['folklore'])
-        #n_bigrams = self.top_n_bigrams(c['folklore'], 30)
-        #n_trigrams = self.top_n_trigrams(c['folklore'], 30)
-        
-        return 1
+        words_set = analyzer.total_words(o['folklore'])
+        avg_length = analyzer.avg_words(words_set)
+        num_unique = analyzer.unique_words(o['folklore'])
+        n_bigrams = self.top_n_bigrams(c['folklore'], 30)
+        n_trigrams = self.top_n_trigrams(c['folklore'], 30)
 
 class SentimentClassifier():
 
     def classify(self, lyric):
-        
         """
         Classifies a song as either positive or negative
         """
-        
         sid = SentimentIntensityAnalyzer()
         c = 0
         
@@ -306,16 +278,13 @@ class SentimentClassifier():
             return 'neg'
     
     def polarity(self, dataset):
-        
         """
         Returns a new dataset with a column indicating the 
         polarity of each song on an album
         """
-        
         df = dataset.copy()
         df['polarity'] = df['lyrics'].apply(lambda x: self.classify(x)) 
         df = df.drop(columns=['album', 'lyrics'])
-        
         return df
     
     def run(self, dataset, d):
@@ -327,9 +296,8 @@ class SentimentClassifier():
        return pos, neg
         
 def convert(stringified): 
-    
+
     wordlist = ast.literal_eval(stringified)
-    
     return wordlist
 
 def datamod(dataset):
@@ -345,42 +313,35 @@ def datamod(dataset):
     df.reset_index(inplace=True, drop=True)
     
     for album in albums:
-    
         data = df.loc[df.album == album]
-    
         d.update({
                 album.lower(): data
                 })
     
     return [df, d]
 
-def main():
+modeler = TopicModeler()
+classifier = SentimentClassifier()
+analyzer = WordAnalyzer()
+
+dfs = pd.read_csv('sentence-lyrics.csv', index_col=0)
+[dfs, s] = datamod(dfs)
+
+classifier.run(dfs, s)
+
+"""
+DATASET 1: ORIGINAL SET OF LYRICS
+"""
     
-    modeler = TopicModeler()
-    classifier = SentimentClassifier()
-    analyzer = WordAnalyzer()
-    
-    dfs = pd.read_csv('sentence-lyrics.csv', index_col=0)
-    [dfs, s] = datamod(dfs)
-    
-    classifier.run(dfs, s)
-    
-    """
-    DATASET 1: ORIGINAL SET OF LYRICS
-    """
-        
-    dfo = pd.read_csv('original-lyrics.csv', index_col=0)
-    [dfo, o] = datamod(dfo)
-    
-    """
-    DATASET 2: CLEANED SET OF LYRICS
-    """
-    
-    dfc = pd.read_csv('cleaned-lyrics.csv', index_col=0)
-    [dfc, c] = datamod(dfc)
-    
-    analyzer.run(dfo, dfc, o, c)
-    modeler.run(c)
-    
-if __name__ == "__main__":
-    main()
+dfo = pd.read_csv('original-lyrics.csv', index_col=0)
+[dfo, o] = datamod(dfo)
+
+"""
+DATASET 2: CLEANED SET OF LYRICS
+"""
+
+dfc = pd.read_csv('cleaned-lyrics.csv', index_col=0)
+[dfc, c] = datamod(dfc)
+
+analyzer.run(dfo, dfc, o, c)
+modeler.run(c)

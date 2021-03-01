@@ -85,6 +85,8 @@ def build_LSTM(max_length, vocab, dropout=0.2):
     model = Sequential()
     model.add(LSTM(128, input_shape=(max_length, len(vocab))))
     model.add(Dropout(dropout))
+    model.add(LSTM(128))
+    model.add(Dropout(dropout))
     model.add(Dense(len(vocab)))
     model.add(Activation('softmax'))
     optimizer=Adam(lr=0.01)
@@ -97,6 +99,8 @@ def build_GRU(max_length, vocab, dropout=0.2):
     """
     model = Sequential()
     model.add(GRU(128, input_shape=(max_length, len(vocab))))
+    model.add(Dropout(dropout))
+    model.add(GRU(128))
     model.add(Dropout(dropout))
     model.add(Dense(len(vocab)))
     model.add(Activation('softmax'))
