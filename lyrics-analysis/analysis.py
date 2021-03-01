@@ -332,14 +332,12 @@ classifier.run(dfs, s)
 """
 DATASET 1: ORIGINAL SET OF LYRICS
 """
-    
 dfo = pd.read_csv('original-lyrics.csv', index_col=0)
 [dfo, o] = datamod(dfo)
 
 """
 DATASET 2: CLEANED SET OF LYRICS
 """
-
 dfc = pd.read_csv('cleaned-lyrics.csv', index_col=0)
 [dfc, c] = datamod(dfc)
 
